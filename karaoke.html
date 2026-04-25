@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Completamente Karaoke MP3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1014;
+      --surface: rgba(10, 10, 14, 0.55);
+      --surface-2: rgba(255,255,255,0.08);
+      --text: #ffffff;
+      --muted: rgba(255,255,255,0.72);
+      --accent: #ffd54a;
+      --accent-2: #22d3ee;
+      --border: rgba(255,255,255,0.14);
+      --shadow: 0 20px 60px rgba(0,0,0,0.45);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      color: var(--text);
+      background:
+        linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.6)),
+        url('./2.jpg') center/cover no-repeat fixed;
+      overflow: hidden;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      backdrop-filter: blur(4px);
+    }
+
+    .player {
+      width: min(1100px, 100%);
+      min-height: 82vh;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .left, .right { padding: 28px; }
+    .left {
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: 14px;
+    }
+
+    .logo-badge {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), #ff8a00);
+      color: #111;
+      font-size: 22px;
+      box-shadow: 0 12px 30px rgba(255, 193, 7, .25);
+    }
+
+    .cover {
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 22px;
+      background:
+        linear-gradient(rgba(0,0,0,.15), rgba(0,0,0,.35)),
+        url('./1.jpg') center/cover no-repeat;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 3vw, 42px);
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .meta {
+      display: grid;
+      gap: 10px;
+      padding: 18px;
+      border-radius: 20px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+    }
+
+    .meta strong { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent-2); }
+
+    audio {
+      width: 100%;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .hint {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--muted);
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.2);
+      border: 1px dashed rgba(255,255,255,.18);
+    }
+
+    .autoplay-note {
+      display: none;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255, 213, 74, .12);
+      border: 1px solid rgba(255, 213, 74, .24);
+      color: #ffe89a;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .autoplay-note.show { display: block; }
+
+    .play-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), #ff9d00);
+      color: #111;
+      font-weight: 800;
+      border: 0;
+      box-shadow: 0 10px 28px rgba(255, 170, 0, .28);
+    }
+
+    .play-btn:hover { filter: brightness(1.03); }
+
+    .right {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: clamp(18px, 2vw, 24px);
+    }
+
+    .status {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(34, 211, 238, .12);
+      border: 1px solid rgba(34, 211, 238, .28);
+      color: #baf5ff;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .lyrics-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      border-radius: 24px;
+      background: rgba(0,0,0,.22);
+      border: 1px solid var(--border);
+    }
+
+    .lyrics-wrap::before,
+    .lyrics-wrap::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 90px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .lyrics-wrap::before {
+      top: 0;
+      background: linear-gradient(to bottom, rgba(8,8,10,0.95), rgba(8,8,10,0));
+    }
+
+    .lyrics-wrap::after {
+      bottom: 0;
+      background: linear-gradient(to top, rgba(8,8,10,0.95), rgba(8,8,10,0));
+    }
+
+    .lyrics {
+      height: 100%;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      padding: 100px 24px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.25) transparent;
+    }
+
+    .line {
+      font-size: clamp(22px, 2.3vw, 38px);
+      line-height: 1.35;
+      font-weight: 700;
+      color: rgba(255,255,255,0.38);
+      margin: 0 0 18px 0;
+      transition: transform .25s ease, color .25s ease, opacity .25s ease;
+      transform-origin: left center;
+    }
+
+    .line.active {
+      color: var(--accent);
+      transform: scale(1.03);
+      text-shadow: 0 0 18px rgba(255,213,74,.22);
+    }
+
+    .line.past {
+      color: rgba(255,255,255,0.78);
+    }
+
+    .bottom-note {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    code {
+      background: rgba(255,255,255,.08);
+      padding: 2px 8px;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 900px) {
+      body { overflow: auto; }
+      .page { place-items: stretch; }
+      .player {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+      .left { border-right: 0; border-bottom: 1px solid var(--border); }
+      .lyrics-wrap { min-height: 52vh; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="player" aria-label="Player karaoke">
+      <aside class="left">
+        <div class="logo" aria-label="Logo karaoke">
+          <div class="logo-badge">♫</div>
+          <span>Karaoke Pusapù</span>
+        </div>
+
+        <div class="cover" aria-hidden="true"></div>
+
+        <div>
+          <h1>Completamente</h1>
+          <p class="subtitle">Karaoke con foto di sfondo, copertina locale e testo già inserito.</p>
+        </div>
+
+        <div class="meta">
+          <strong>Audio MP3</strong>
+          <audio id="audio" controls autoplay>
+            <source src="./Completamente .mp3" type="audio/mpeg" />
+            Il tuo browser non supporta l'audio HTML5.
+          </audio>
+        </div>
+
+        <button class="play-btn" id="playBtn" type="button">▶ Avvia canzone</button>
+
+        <div class="autoplay-note" id="autoplayNote">
+          Il browser può bloccare l'avvio automatico dell'audio: se succede, premi “Avvia canzone”.
+        </div>
+
+        
+      </aside>
+
+      <div class="right">
+        <div class="topbar">
+          <h2>Testo karaoke sincronizzato</h2>
+          <div class="status" id="status">In attesa</div>
+        </div>
+
+        <div class="lyrics-wrap">
+          <div class="lyrics" id="lyrics"></div>
+        </div>
+
+        
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const lyricsData = [
+      { time: 0, text: 'Lui chi è?' },
+      { time: 4, text: 'È un altro uomo che è impazzito per te' },
+      { time: 8, text: 'Ma non penso che possa dirti' },
+      { time: 12, text: 'Tutto quello che ti dico io' },
+      { time: 16, text: 'Spero che' },
+      { time: 19, text: 'Mi auguro di cuore che' },
+      { time: 23, text: 'Non ci incontreremo mai più' },
+      { time: 27, text: 'Per non perdere l\'ultimo' },
+      { time: 31, text: 'Briciolo di dignità che mi rimane' },
+      { time: 35, text: 'Ed evitare di squagliarmi sotto il sole' },
+      { time: 40, text: 'Ed evitare di guardarti come un pazzo' },
+      { time: 45, text: 'Come un pazzo che ti vuole' },
+      { time: 49, text: 'Completamente' },
+      { time: 53, text: 'Completamente' },
+      { time: 57, text: 'Spero che' },
+      { time: 60, text: 'Mi auguro di cuore che' },
+      { time: 64, text: 'Ci incontreremo ancora' },
+      { time: 68, text: 'Perché voglio perdere' },
+      { time: 72, text: 'Oserai andarci sotto, maledetta' },
+      { time: 77, text: 'E provare robe forti un\'altra volta' },
+      { time: 82, text: 'E spararti tutto ciò che provo in faccia' },
+      { time: 87, text: 'Come un pazzo che ti vuole' },
+      { time: 91, text: 'Completamente' },
+      { time: 95, text: 'Completamente' },
+      { time: 99, text: 'Completamente' },
+      { time: 103, text: 'E la musica che mettevi su YouTube' },
+      { time: 108, text: 'Mi faceva impazzire' },
+      { time: 112, text: 'E chi se la scorda più' },
+      { time: 116, text: 'A me mi fa ancora male' },
+      { time: 120, text: 'A me mi fa ancora male' },
+      { time: 124, text: 'Completamente' },
+      { time: 128, text: 'Non trovo sonno' },
+      { time: 131, text: 'Non trovo pace' },
+      { time: 134, text: 'Sento che il cuore va più veloce' },
+      { time: 139, text: 'Solo così sto tanto bene' },
+      { time: 143, text: 'Completamente' },
+      { time: 147, text: 'Non trovo sonno' },
+      { time: 150, text: 'Non trovo pace' },
+      { time: 153, text: 'Sento che il cuore va più veloce' },
+      { time: 158, text: 'Solo così sto tanto bene' },
+      { time: 162, text: 'Completamente' },
+      { time: 166, text: 'Non ho più fame' },
+      { time: 169, text: 'Lasciami bere' },
+      { time: 172, text: 'Baciami adesso anche se piove' },
+      { time: 177, text: 'Solo così sto tanto bene' },
+      { time: 181, text: 'Completamente' }
+    ];
+
+    const audio = document.getElementById('audio');
+    const lyricsContainer = document.getElementById('lyrics');
+    const status = document.getElementById('status');
+    const autoplayNote = document.getElementById('autoplayNote');
+    const playBtn = document.getElementById('playBtn');
+    let activeIndex = -1;
+
+    function renderLyrics() {
+      lyricsContainer.innerHTML = lyricsData.map((line, index) => `
+        <p class="line" data-index="${index}" data-time="${line.time}">${line.text}</p>
+      `).join('');
+    }
+
+    function setActiveLine(index) {
+      if (index === activeIndex) return;
+      activeIndex = index;
+      const lines = [...document.querySelectorAll('.line')];
+
+      lines.forEach((line, i) => {
+        line.classList.toggle('active', i === index);
+        line.classList.toggle('past', i < index);
+      });
+
+      const current = lines[index];
+      if (current) {
+        current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    const ritardo = 17; // secondi
+
+function updateLyrics() {
+  const currentTime = audio.currentTime - ritardo;
+  let index = lyricsData.findIndex((line, i) => {
+    const next = lyricsData[i + 1];
+    return currentTime >= line.time && (!next || currentTime < next.time);
+  });
+
+  if (index === -1 && currentTime < lyricsData[0].time) index = 0;
+  setActiveLine(index);
+}
+
+    async function tryAutoplay() {
+      try {
+        await audio.play();
+        autoplayNote.classList.remove('show');
+      } catch (error) {
+        autoplayNote.classList.add('show');
+      }
+    }
+
+    playBtn.addEventListener('click', async () => {
+      try {
+        await audio.play();
+        autoplayNote.classList.remove('show');
+      } catch (error) {
+        autoplayNote.classList.add('show');
+      }
+    });
+
+    audio.addEventListener('play', () => status.textContent = 'In riproduzione');
+    audio.addEventListener('pause', () => status.textContent = 'In pausa');
+    audio.addEventListener('ended', () => status.textContent = 'Terminato');
+    audio.addEventListener('timeupdate', updateLyrics);
+
+    renderLyrics();
+    setActiveLine(0);
+    window.addEventListener('load', tryAutoplay);
+  </script>
+</body>
+</html>
